@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    // 让 Volar 认识 el-* 全局组件；纯编辑器提示，不参与构建，不需要装 typescript
+    "types": ["element-plus/global"]
+  },
+  "exclude": ["node_modules", "dist"]
+}
