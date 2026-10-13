@@ -37,12 +37,25 @@ const router = createRouter({
           },
         },
         {
-          path: '/apartmentManagent/apartmentManagement',
+          path: '/apartmentManagement/apartmentManagement',
           component: () => import('@/views/apartmentManagement/apartmentManagement.vue'),
           meta: {
             title: '公寓管理'
           },
 
+        },
+        {
+          path: '/apartmentManagement/addOrEditApartment/:id?',
+          name: 'addOrEditApartment',
+          component: () => import('@/views/apartmentManagement/addOrEditApartment.vue'),
+          meta: {
+            title: '编辑或新增公寓信息',
+            // 这个页面本身不在菜单里，但视觉上属于「公寓管理」那一项。
+            // 侧边栏优先拿它去点亮菜单 —— 不然 default-active 匹配不到任何一项，
+            // 高亮没了，所在的分组也会跟着自动收起来。
+            // 值必须跟 aside.vue 里那个 el-menu-item 的 index 一模一样，
+            activeMenu: '/apartmentManagent/apartmentManagement'
+          }
         },
         {
           path: '/apartmentManagement/attributeManagement',
@@ -57,6 +70,15 @@ const router = createRouter({
           component: () => import('@/views/apartmentManagement/roomManagement.vue'),
           meta: {
             title: '房间管理'
+          }
+        },
+        {
+          path: '/apartmentManagement/addOrEditRoom/:id?',
+          name: 'addOrEditRoom',
+          component: () => import('@/views/apartmentManagement/addOrEditRoom.vue'),
+          meta: {
+            title: '编辑或新增房间信息',
+            activeMenu: '/apartmentManagement/roomManagement'
           }
         },
         {
@@ -97,13 +119,13 @@ const router = createRouter({
 
       ]
     },
-    {
-      path: '/:pathMatch(.*)*', // ⭐ Vue Router 4 的 404 写法
-      component: () => import('@/views/404.vue'),
-      meta: {
-        title: '404'
-      },
-    },
+    // {
+    //   path: '/:pathMatch(.*)*', // ⭐ Vue Router 4 的 404 写法
+    //   component: () => import('@/views/404.vue'),
+    //   meta: {
+    //     title: '404'
+    //   },
+    // },
   ],
 })
 // ===== 登录校验暂时关闭，等登录页做好了把下面整段解注释，并恢复上方两个 import =====

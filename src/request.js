@@ -8,6 +8,8 @@ import {
 import {
   useUserStore
 } from "./stores/user";
+import 'element-plus/es/components/message/style/css'
+
 const service = axios.create({
   baseURL: import.meta.env.PROD ? import.meta.env.VITE_APP_BASE_URL : '/',
   timeout: 20000
@@ -41,6 +43,7 @@ service.interceptors.response.use(
     }
     //业务报错
     if (data.code && data.code !== 200) {
+      console.error('❌', response.config.url, response.config.params ?? '', data)
       ElMessage.error(data.message || '请求失败')
       return Promise.reject(data)
     }
@@ -53,6 +56,7 @@ service.interceptors.response.use(
       403: '拒绝访问',
       404: '请求地址错误',
       500: '服务器故障',
+      502: '请求失败',
     }
     ElMessage.error(map[status] || '网络连接故障')
     return Promise.reject(error)

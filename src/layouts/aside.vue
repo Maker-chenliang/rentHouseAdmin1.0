@@ -11,7 +11,7 @@
       <span v-show="!isCollapse" class="logo-text">后台管理</span>
     </div>
 
-    <el-menu :router="true" :default-active="route.path" class="el-menu-vertical-demo" :collapse="isCollapse"
+    <el-menu :router="true" :default-active="activeIndex" class="el-menu-vertical-demo" :collapse="isCollapse"
       @open="handleOpen" @close="handleClose">
 
       <el-menu-item index="/index">
@@ -31,7 +31,7 @@
           <span>公寓管理</span>
         </template>
 
-        <el-menu-item index="/apartmentManagent/apartmentManagement">
+        <el-menu-item index="/apartmentManagement/apartmentManagement">
           <el-icon>
             <OfficeBuilding />
           </el-icon>
@@ -40,7 +40,7 @@
           </template>
         </el-menu-item>
 
-        <el-menu-item index="2-2">
+        <el-menu-item index="/apartmentManagement/roomManagement">
           <el-icon>
             <Key />
           </el-icon>
@@ -89,14 +89,25 @@ import {
   Setting,
 } from '@element-plus/icons-vue'
 import logoUrl from '@/assets/icons/logo3.png'
+import { computed } from 'vue'
 import { useRoute } from 'vue-router';
+
 const route = useRoute()
+
+// 当前该点亮哪一项菜单。
+// 为什么不直接用 route.path：像编辑公寓这种二级页面根本不在菜单里，
+// 完整路径跟任何 index 都对不上，菜单会整块失去高亮、分组还会自动收起来。
+// 所以路由的 meta 里可以标一个 activeMenu，指明「这个页面属于哪一项菜单」，
+// 有标就用它，没标就退回完整路径。
+// route.meta 是响应式的（useRoute() 拿到的是响应式对象），
+// 外面套 computed，跳转时 default-active 才会跟着变
+const activeIndex = computed(() => route.meta.activeMenu ?? route.path)
 
 defineProps({
   isCollapse: {
     type: Boolean,
     default: false,
-  },
+  }
 })
 
 const handleOpen = (key, keyPath) => {
@@ -131,6 +142,17 @@ const handleClose = (key, keyPath) => {
 
 }
 
+/* 选中那一项的蓝底。为什么要写成这样：
+   1. .el-menu-item 是 el-menu 内部渲染出来的，不在本组件的模板里，
+      加了 scoped 属性之后裸写选择器匹配不到，必须用 :deep() 钻进去；
+   2. :deep() 展开后是 .aside-inner[data-v-x] .el-menu-item.is-active（四个类），
+      优先级压得过 EP 那条 hover 规则 .el-menu-item:not(.is-disabled):hover
+      （三个类），所以鼠标划过选中项时蓝底不会被 hover 的浅灰顶掉。
+   底色本身定义在 index.vue 的 .layout-aside 里，跟其它配色放一起 */
+.aside-inner :deep(.el-menu-item.is-active) {
+  background-color: var(--aside-active-bg);
+}
+
 .logo-bar {
   display: flex;
   align-items: center;
@@ -141,6 +163,7 @@ const handleClose = (key, keyPath) => {
   padding: 0 16px;
   overflow: hidden;
   white-space: nowrap;
+
 }
 
 /* 折叠态 aside 是 64px，左右各 16px padding 后正好剩 32px，logo 居中 */
@@ -148,6 +171,11 @@ const handleClose = (key, keyPath) => {
   width: 32px;
   height: 32px;
   flex-shrink: 0;
+  /* 圆形。.logo-img 挂在 el-image 的根元素上，而 EP 的 .el-image 自带
+     overflow: hidden，所以这一个圆角就能把里面的 <img> 和 #error 插槽一起裁圆，
+     不用再去 :deep 内层的 .el-image__inner */
+  border-radius: 50%;
+
 }
 
 .logo-fallback {
@@ -156,8 +184,11 @@ const handleClose = (key, keyPath) => {
 }
 
 .logo-text {
-  font-size: 16px;
+  font-size: 20px;
   font-weight: 600;
-  color: var(--el-text-color-primary);
+  /* 原来取 --el-text-color-primary（近黑），换成深色侧边栏后等于隐形。
+     --aside-text-color 由 index.vue 的 .layout-aside 定义，
+     CSS 变量会继承，这里直接取得到 —— 深色底的文字色只有那一个来源 */
+  color: var(--aside-text-color);
 }
 </style>

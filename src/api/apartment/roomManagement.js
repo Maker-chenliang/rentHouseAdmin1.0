@@ -60,7 +60,7 @@ import request from "@/request";
 export function getRoomList(params) {
   return request.get('/admin/room/pageItem', {
     current: params.pageNum,
-    size: params.size,
+    size: params.pageSize,
     provinceId: params.provinceId,
     cityId: params.cityId,
     districtId: params.districtId,

@@ -30,7 +30,7 @@
     "globals": "^17.7.0",
     "npm-run-all2": "^9.0.2",
     "oxlint": "~1.74.0",
-    "prettier": "3.9.5",
+    "prettier": "^3.9.9",
     "sass": "^1.104.0",
     "unplugin-auto-import": "^21.1.0",
     "unplugin-icons": "^24.0.0",

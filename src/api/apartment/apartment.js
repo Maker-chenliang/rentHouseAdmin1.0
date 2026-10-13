@@ -123,7 +123,23 @@ export function getLabelInfoList(type = null) {
 
 /**
  * 查询全部杂费名称和杂费值列表
+ * @returns {Promise<{data:Array<{id:number,name:string,feeValueList:Array<{id:number,name:string,unit:string,feeKeyId:number}>}>}>}
  */
 export function getFeeInfoList() {
   return request.get('/admin/fee/list')
+}
+
+/**
+ * 上传图片到文件服务器（MinIO）
+ * @param {File} file
+ * @returns {Promise<{data:string}>} data 就是上传后的访问地址
+ */
+export function uploadFile(file) {
+  const formData = new FormData()
+  // 字段名必须是 file，对应后端 upload(@RequestParam MultipartFile file)
+  formData.append('file', file)
+  // 别手动写 Content-Type: 'multipart/form-data'。
+  // 这个头必须带 boundary，而 boundary 是 axios 拿到 FormData 时自己生成的；
+  // 手写会把 boundary 弄丢，后端就解析不出文件了
+  return request.post('/admin/file/upload', formData)
 }

@@ -1,7 +1,7 @@
 <template>
   <div class="common-layout">
     <el-container>
-      <el-aside class="layout-aside" :width="isCollapse ? '64px' : '18%'">
+      <el-aside class="layout-aside" :width="isCollapse ? '64px' : '15%'">
         <Aside :is-collapse="isCollapse"></Aside>
       </el-aside>
       <el-container>
@@ -26,6 +26,8 @@ const toggleCollapse = () => {
   isCollapse.value = !isCollapse.value
 }
 
+const asideBackGround = ref("rgb(0, 21, 41)")
+
 // 监听窗口宽度
 const screenWidth = ref(window.innerWidth)
 
@@ -43,7 +45,7 @@ onUnmounted(() => {
 })
 
 watch(screenWidth, (newVal) => {
-  isCollapse.value = newVal < 800
+  isCollapse.value = newVal < 1000
 }, { immediate: true })
 
 
@@ -60,6 +62,33 @@ watch(screenWidth, (newVal) => {
   display: flex;
   flex-direction: column;
   height: 100%;
+
+  /* 直接写 background-color: asideBackGround; 是无效值 —— CSS 不认识 JS 的 ref，
+     解析器遇到解析不了的值会把整条声明丢掉，而且不报错，所以看着像「没生效」。
+     v-bind() 才是 JS 变量进 CSS 的入口：编译后在组件根元素上挂一个
+     --xxxx-asideBackGround 的行内 CSS 变量，这里再把它取出来用 */
+  background-color: v-bind(asideBackGround);
+
+  /* el-menu 自带 background-color: var(--el-menu-bg-color)，默认是白色
+     （--el-fill-color-blank），会把上面这层深色整片盖住，只在菜单下方露出一条。
+     这套 --el-menu-* 变量 EP 声明在 :root 上，.el-menu 只负责消费，
+     所以在祖先节点重写就能生效 —— 就近继承到的值赢过 :root。
+     设成 transparent 让 aside 的底色透上来，配色只由 asideBackGround 一处决定 */
+  --el-menu-bg-color: transparent;
+  /* 菜单文字默认取 --el-text-color-primary（#303133，近黑），深底上等于隐形 */
+  --el-menu-text-color: rgba(255, 255, 255, 0.75);
+  --el-menu-hover-text-color: #fff;
+  --el-menu-active-color: #fff;
+  --el-menu-hover-bg-color: rgba(255, 255, 255, 0.08);
+
+  /* logo 那行在 aside.vue 里面，够不着上面这些变量。
+     单独开一个给它，深色底的文字色还是只有这一个来源 */
+  --aside-text-color: rgba(255, 255, 255, 0.9);
+
+  /* 选中那一项的蓝底。EP 的 .el-menu-item.is-active 只设了 color，没给任何
+     background-color，所以蓝底得自己补一条规则 —— 在 aside.vue 里，
+     因为它要盖的是 el-menu 内部渲染出来的元素 */
+  --aside-active-bg: var(--el-color-primary);
 }
 
 .common-layout {
